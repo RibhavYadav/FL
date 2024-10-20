@@ -14,7 +14,7 @@ class LinearRegression:
         return x @ self.weights + self.bias
 
     def loss_function(self, y_true, y_pred):
-        return np.mean(np.square(y_true - y_pred))
+        return tf.reduce_mean(tf.square(y_true - y_pred))
 
     def fit(self, x_train, y_train):
         x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
@@ -25,10 +25,9 @@ class LinearRegression:
             self.bias = tf.Variable(tf.random.normal([1]), dtype=tf.float32)
 
         for iteration in range(self.iterations):
-            gradient_descent = tf.GradientTape()
-
-            y_pred = self.predict(x_train)
-            loss = self.loss_function(y_train, y_pred)
+            with tf.GradientTape() as gradient_descent:
+                y_pred = self.predict(x_train)
+                loss = self.loss_function(y_train, y_pred)
 
             d_weights, d_bias = gradient_descent.gradient(loss, [self.weights, self.bias])
             self.weights.assign_sub(self.lr * d_weights)
