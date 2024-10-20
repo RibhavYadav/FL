@@ -17,20 +17,33 @@ class LinearRegression:
         return np.mean(np.square(y_true - y_pred))
 
     def fit(self, x_train, y_train):
+        x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
+        y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
         if self.weights is None:
-            self.weights = np.random.randn(x_train.shape[1])
+            self.weights = tf.Variable(tf.random.normal([x_train.shape[1], 1]), dtype=tf.float32)
         if self.bias is None:
-            self.bias = np.random.randn(1)
+            self.bias = tf.Variable(tf.random.normal([1]), dtype=tf.float32)
 
         for iteration in range(self.iterations):
-            y_pred = self.predict(x_train.transpose)
+            gradient_descent = tf.GradientTape()
+
+            y_pred = self.predict(x_train)
             loss = self.loss_function(y_train, y_pred)
 
-            tape = tf.GradientTape()
-            d_weights, d_bias = tape.gradient(loss, [self.weights, self.bias])
-
-            self.weights -= self.lr * d_weights
-            self.bias -= self.lr * d_bias
+            d_weights, d_bias = gradient_descent.gradient(loss, [self.weights, self.bias])
+            self.weights.assign_sub(self.lr * d_weights)
+            self.bias.assign_sub(self.lr * d_bias)
 
             if self.verbose and iteration % 100 == 0:
                 print(f"Epoch: {iteration}\nLoss: {loss}\nWeights: {self.weights}\nBias: {self.bias} ")
+
+        print(f"Weights: {self.weights}\nBias: {self.bias} ")
+
+
+LR = LinearRegression(verbose=True)
+
+np.random.seed(42)
+X_train = np.random.rand(100, 1)
+y_t = 3 * X_train + 2 + np.random.randn(100, 1) * 0.1
+
+LR.fit(X_train, y_t)
