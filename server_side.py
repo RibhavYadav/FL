@@ -1,3 +1,5 @@
+import client_side
+
 """
 'Server' side implementation for Federated Learning
 Server class with functions for it's working:
