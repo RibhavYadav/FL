@@ -2,9 +2,9 @@ from models import model_template
 
 
 class Client:
-    def __init__(self, learning_model: model_template, weights=None, bias=None, batch_size=64):
+    def __init__(self, model: model_template, weights=None, bias=None, batch_size=64):
         # Initialises the client with the model, weights and bias from the global model.
-        self.model = learning_model
+        self.model = model
         self.weights = weights
         self.bias = bias
         self.batch_size = batch_size
