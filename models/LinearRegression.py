@@ -1,8 +1,8 @@
-import model
+import model_template
 import tensorflow as tf
 
 
-class LinearRegression(model):
+class LinearRegression(model_template):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
         # Initialises Linear Regression model.
         self.weights = weights
