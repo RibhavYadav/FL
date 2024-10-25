@@ -6,8 +6,8 @@ class LinearRegression(Model):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
         # Initialises Linear Regression model.
         super().__init__(weights, bias, learning_rate, iterations, verbose)
-        self.weights = weights
-        self.bias = bias
+        self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
+        self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
         self.lr = learning_rate
         self.iterations = iterations
         self.verbose = verbose
