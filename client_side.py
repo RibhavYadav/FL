@@ -27,4 +27,4 @@ class Client:
         self.batches_done += 1
 
     def send_local(self):
-        return self.weights, self.bias
+        return self.weights.numpy(), self.bias

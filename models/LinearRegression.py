@@ -1,4 +1,4 @@
-from model_template import Model
+from models.model_template import Model
 import tensorflow as tf
 
 
