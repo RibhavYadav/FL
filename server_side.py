@@ -5,11 +5,12 @@ import tensorflow as tf
 
 
 class Server:
-    def __init__(self, model: Type[Model], x, y, weights=None, bias=None, clients: List[Client] = None):
+    def __init__(self, model: Type[Model], x, y, weights=None, bias=None, clients: List[Client] = None,
+                 final_weights=False):
         # Initialize model, weights, and bias for the server
         self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
         self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
-        self.model = model(weights=self.weights, bias=self.bias)
+        self.model = model(weights=self.weights, bias=self.bias, final_weights=final_weights)
         self.x, self.y = x, y
         self.connected_clients = clients
 
