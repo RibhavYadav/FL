@@ -5,7 +5,7 @@ import tensorflow as tf
 
 
 class Server:
-    def __init__(self, model: Type[Model], x, y, weights=None, bias=None, clients: List[Client] = None):
+    def __init__(self, model: Type[Model], x, y, weights=None, bias=None, clients: List[Type[Client]] = None):
         # Initialize model, weights, and bias for the server
         self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
         self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
