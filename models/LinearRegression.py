@@ -16,8 +16,7 @@ class LinearRegression(Model):
         # Predicts output based on current weights and bias.
         return x @ self.weights + self.bias
 
-    def compute_loss(
-            self, y_true, y_pred):
+    def compute_loss(self, y_true, y_pred):
         # Calculated the mean square error.
         return tf.reduce_mean(tf.square(y_true - y_pred))
 
@@ -33,12 +32,12 @@ class LinearRegression(Model):
             self.bias = tf.Variable(tf.random.normal([1]), dtype=tf.float32)
 
         # Gradient descent for optimisation of weights.
-        for iteration in range(self.iterations + 1):
+        for epoch in range(self.iterations + 1):
 
             # Tensorflow's class to calculate gradient descent.
             with tf.GradientTape() as gradient_descent:
                 y_pred = self.predict(x_train)
-                loss = self.loss_function(y_train, y_pred)
+                loss = self.compute_loss(y_train, y_pred)
 
             # Calculates partial derivatives using tensorflow's automatic differentiation.
             d_weights, d_bias = gradient_descent.gradient(loss, [self.weights, self.bias])
@@ -48,10 +47,10 @@ class LinearRegression(Model):
             self.bias.assign_sub(self.lr * d_bias)
 
             # Prints loss, weights and bias.
-            if self.verbose and iteration % (self.iterations // 10) == 0:
+            if self.verbose and epoch % (self.iterations // 10) == 0:
                 print(
-                    f"Epoch: {iteration}\nLoss: {loss.numpy().flatten()}\nWeights: {self.weights.numpy().flatten()}\nBias: {self.bias.numpy().flatten()}\n")
+                    f"Epoch: {epoch}\nLoss: {loss.numpy().flatten()}\nWeights: {self.weights.numpy().flatten()}\nBias: {self.bias.numpy().flatten()}\n")
 
-        # Prints the final weights and bias
+        # Prints the final weights and bias.
         if self.verbose:
             print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
