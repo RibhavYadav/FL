@@ -1,83 +1,59 @@
-import numpy as np
 import tensorflow as tf
-from sklearn.datasets import load_diabetes
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from models.model_template import Model
 
-# Load and scale the diabetes dataset
-diabetes = load_diabetes()
-X = diabetes.data
-y = diabetes.target
 
-# Scale the features
-scaler_X = StandardScaler()
-X_scaled = scaler_X.fit_transform(X)
+class OptimisedSGD(Model):
+    def __init__(self, learning_rate=0.001, iterations=1000, batch_size=32, verbose=False):
+        super().__init__(learning_rate=learning_rate, iterations=iterations, verbose=verbose)
+        self.batch_size = batch_size
+        self.weights = None
+        self.bias = None
 
-# Scale the target variable (reshape to 2D for StandardScaler)
-scaler_y = StandardScaler()
-y_scaled = scaler_y.fit_transform(y.reshape(-1, 1)).flatten()  # Reshape to 2D, then flatten back
+    def predict(self, x):
+        return tf.matmul(x, self.weights) + self.bias
 
-# Split into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.2, random_state=42)
+    def compute_loss(self, y_true, y_pred):
+        return tf.reduce_mean(tf.square(y_true - y_pred))
 
-# Convert to TensorFlow tensors
-X_train_tf = tf.convert_to_tensor(X_train, dtype=tf.float32)
-y_train_tf = tf.convert_to_tensor(y_train, dtype=tf.float32)
-X_test_tf = tf.convert_to_tensor(X_test, dtype=tf.float32)
-y_test_tf = tf.convert_to_tensor(y_test, dtype=tf.float32)
+    def fit(self, x_train, y_train):
+        # Converts given data to TensorFlow tensors.
+        x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
+        y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
 
-# Define a simple linear model (y = XW + b)
-class LinearModel(tf.Module):
-    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
-        self.W = tf.Variable(tf.random.normal([X_train.shape[1], 1]))
-        self.b = tf.Variable(tf.random.normal([1]))
+        # Initialize weights and bias based on the shape of the input features
+        features = x_train.shape[1]
+        self.weights = tf.Variable(tf.random.normal(shape=[features, 1]), dtype=tf.float32)
+        self.bias = tf.Variable(tf.random.normal(shape=[1]), dtype=tf.float32)
 
-    def __call__(self, X):
-        return tf.matmul(X, self.W) + self.b
+        optimizer = tf.keras.optimizers.SGD(learning_rate=self.lr)
 
-model = LinearModel()
+        # Create a TensorFlow dataset for batching
+        dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+        dataset = dataset.shuffle(buffer_size=len(x_train)).batch(self.batch_size)
 
-# Mean squared error (MSE) loss function
-def compute_loss(y_true, y_pred):
-    return tf.reduce_mean(tf.square(y_true - y_pred))
+        # Training loop
+        for epoch in range(self.iterations):
+            epoch_loss = 0
+            for x_batch, y_batch in dataset:
+                with tf.GradientTape() as tape:
+                    predictions = self.predict(x_batch)
+                    loss = self.compute_loss(y_batch, predictions)
 
-# Use SGD as the optimizer with a lower learning rate
-optimizer = tf.keras.optimizers.SGD(learning_rate=0.001)  # Reduced learning rate
+                # Compute gradients
+                gradients = tape.gradient(loss, [self.weights, self.bias])
 
-# Train the model
-def fit(model, X, y):
-    with tf.GradientTape() as tape:
-        predictions = model(X)
-        loss = compute_loss(y, predictions)
-    gradients = tape.gradient(loss, [model.W, model.b])
-    optimizer.apply_gradients(zip(gradients, [model.W, model.b]))
-    return loss
+                # Gradient clipping to prevent exploding gradients
+                gradients = [tf.clip_by_value(grad, -1.0, 1.0) for grad in gradients]
 
-# Training loop with more epochs
-epochs = 300  # Increased number of epochs
-batch_size = 32
-n_batches = len(X_train) // batch_size
+                # Apply gradients
+                optimizer.apply_gradients(zip(gradients, [self.weights, self.bias]))
 
-for epoch in range(epochs):
-    epoch_loss = 0
-    for i in range(n_batches):
-        start = i * batch_size
-        end = start + batch_size
-        X_batch = X_train_tf[start:end]
-        y_batch = y_train_tf[start:end]
-        
-        batch_loss = train_step(model, X_batch, y_batch)
-        epoch_loss += batch_loss
+                epoch_loss += loss.numpy()
 
-    if (epoch + 1) % 10 == 0:  # Print every 10 epochs
-        print(f'Epoch {epoch+1}, Loss: {epoch_loss.numpy() / n_batches}')
+            # Verbose output
+            if self.verbose and (epoch % (self.iterations // 10) == 0 or epoch == self.iterations - 1):
+                print(f'Epoch {epoch + 1}, Loss: {epoch_loss / len(dataset):.4f}')
 
-# Evaluate the model
-def predict(model, X):
-    return model(X_test_tf)
-test_loss = compute_loss(y_test_tf, predictions)
-print(f'Test Loss: {test_loss.numpy()}')
-
-# Optionally inverse transform the predictions and target back to original scale
-predictions_original_scale = scaler_y.inverse_transform(predictions.numpy())
-y_test_original_scale = scaler_y.inverse_transform(y_test_tf.numpy())
+        # Prints the final weights and bias.
+        if self.verbose:
+            print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
