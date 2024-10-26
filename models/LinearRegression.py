@@ -52,4 +52,5 @@ class LinearRegression(Model):
                     f"Epoch: {iteration}\nLoss: {loss.numpy().flatten()}\nWeights: {self.weights.numpy().flatten()}\nBias: {self.bias.numpy().flatten()}\n")
 
         # Prints the final weights and bias
-        print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
+        if self.verbose:
+            print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")

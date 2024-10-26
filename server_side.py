@@ -19,19 +19,19 @@ class Server:
 
     def aggregate(self):
         # Accumulators for weights and bias
-        total_w = tf.zeros_like(self.weights)
-        total_b = tf.zeros_like(self.bias)
+        total_w = tf.Variable(tf.zeros_like(self.weights), dtype=tf.float32)
+        total_b = tf.Variable(tf.zeros_like(self.bias), dtype=tf.float32)
 
         # Collect weights and biases from clients
         for client in self.connected_clients:
             client.train_local(self.x, self.y)
             w, b = client.send_local()
-            total_w += tf.convert_to_tensor(w)
-            total_b += tf.convert_to_tensor(b)
+            total_w.assign_add(w)
+            total_b.assign_add(b)
 
         # Average the weights and bias
-        self.weights.assign(total_w / len(self.connected_clients))
-        self.bias.assign(total_b / len(self.connected_clients))
+        self.model.weights.assign(total_w / len(self.connected_clients))
+        self.model.bias.assign(total_b / len(self.connected_clients))
 
         # Update clients with the new weights and bias
         self.update_clients()
