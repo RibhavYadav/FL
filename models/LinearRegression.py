@@ -16,7 +16,8 @@ class LinearRegression(Model):
         # Predicts output based on current weights and bias.
         return x @ self.weights + self.bias
 
-    def loss_function(self, y_true, y_pred):
+    def compute_loss(
+            self, y_true, y_pred):
         # Calculated the mean square error.
         return tf.reduce_mean(tf.square(y_true - y_pred))
 

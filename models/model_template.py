@@ -20,3 +20,7 @@ class Model:
     def fit(self, x_train, y_train):
         """Fits the model to the training data"""
         pass
+
+    def compute_loss(self, y_true, y_pred):
+        """Computes mean squared error"""
+        pass

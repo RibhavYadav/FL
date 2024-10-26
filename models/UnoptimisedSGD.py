@@ -23,9 +23,12 @@ y_test_tf = tf.convert_to_tensor(y_test, dtype=tf.float32)
 
 # Define a simple linear model (y = XW + b)
 class LinearModel(tf.Module):
-    def __init__(self):
+    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
         self.W = tf.Variable(tf.random.normal([X_train.shape[1], 1]))
         self.b = tf.Variable(tf.random.normal([1]))
+        self.lr = learning_rate
+        self.iterations = iterations
+        self.verbose = verbose
 
     def __call__(self, X):
         return tf.matmul(X, self.W) + self.b
@@ -40,7 +43,7 @@ def compute_loss(y_true, y_pred):
 optimizer = tf.keras.optimizers.SGD(learning_rate=0.01)
 
 # Train the model
-def train_step(model, X, y):
+def fit(model, X, y):
     with tf.GradientTape() as tape:
         predictions = model(X)
         loss = compute_loss(y, predictions)
@@ -67,6 +70,8 @@ for epoch in range(epochs):
     print(f'Epoch {epoch+1}, Loss: {epoch_loss.numpy() / n_batches}')
 
 # Evaluate the model
-predictions = model(X_test_tf)
+def predict(model, X):
+    return  model(X_test_tf)
+
 test_loss = compute_loss(y_test_tf, predictions)
 print(f'Test Loss: {test_loss.numpy()}')
