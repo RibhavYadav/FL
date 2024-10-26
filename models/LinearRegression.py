@@ -3,8 +3,7 @@ import tensorflow as tf
 
 
 class LinearRegression(Model):
-    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False,
-                 final_weights=False):
+    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
         # Initialises Linear Regression model.
         super().__init__(weights, bias, learning_rate, iterations, verbose)
         self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
@@ -12,7 +11,6 @@ class LinearRegression(Model):
         self.lr = learning_rate
         self.iterations = iterations
         self.verbose = verbose
-        self.final_weights = final_weights
 
     def predict(self, x):
         # Predicts output based on current weights and bias.
@@ -54,5 +52,4 @@ class LinearRegression(Model):
                     f"Epoch: {iteration}\nLoss: {loss.numpy().flatten()}\nWeights: {self.weights.numpy().flatten()}\nBias: {self.bias.numpy().flatten()}\n")
 
         # Prints the final weights and bias
-        if self.final_weights:
-            print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
+        print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
