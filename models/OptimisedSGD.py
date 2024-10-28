@@ -3,11 +3,14 @@ from models.model_template import Model
 
 
 class OptimisedSGD(Model):
-    def __init__(self, learning_rate=0.001, iterations=1000, batch_size=32, verbose=False):
-        super().__init__(learning_rate=learning_rate, iterations=iterations, verbose=verbose)
+    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False, batch_size=64):
+        super().__init__(weights, bias, learning_rate, iterations, verbose)
+        self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
+        self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
+        self.lr = learning_rate
+        self.iterations = iterations
+        self.verbose = verbose
         self.batch_size = batch_size
-        self.weights = None
-        self.bias = None
 
     def predict(self, x):
         return tf.matmul(x, self.weights) + self.bias

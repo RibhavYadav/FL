@@ -4,7 +4,6 @@ import tensorflow as tf
 
 class LinearRegression(Model):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=1000, verbose=False):
-        # Initialises Linear Regression model.
         super().__init__(weights, bias, learning_rate, iterations, verbose)
         self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
         self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
@@ -13,44 +12,32 @@ class LinearRegression(Model):
         self.verbose = verbose
 
     def predict(self, x):
-        # Predicts output based on current weights and bias.
-        return x @ self.weights + self.bias
+        return tf.matmul(x, self.weights) + self.bias
 
     def compute_loss(self, y_true, y_pred):
-        # Calculated the mean square error.
         return tf.reduce_mean(tf.square(y_true - y_pred))
 
     def fit(self, x_train, y_train):
-        # Converts given data to tensorflow's tensor type.
         x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
         y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
 
-        # Initialises weights and bias if not given during object creation.
         if self.weights is None:
-            self.weights = tf.Variable(tf.random.normal([x_train.shape[1], 1]), dtype=tf.float32)
+            self.weights = tf.Variable(tf.random.normal([x_train.shape[1], 1], stddev=0.01), dtype=tf.float32)
         if self.bias is None:
-            self.bias = tf.Variable(tf.random.normal([1]), dtype=tf.float32)
+            self.bias = tf.Variable(tf.zeros([1]), dtype=tf.float32)
 
-        # Gradient descent for optimisation of weights.
         for epoch in range(self.iterations + 1):
-
-            # Tensorflow's class to calculate gradient descent.
-            with tf.GradientTape() as gradient_descent:
+            with tf.GradientTape() as tape:
                 y_pred = self.predict(x_train)
                 loss = self.compute_loss(y_train, y_pred)
 
-            # Calculates partial derivatives using tensorflow's automatic differentiation.
-            d_weights, d_bias = gradient_descent.gradient(loss, [self.weights, self.bias])
-
-            # Applies the gradient calculated on the weights and bias.
+            d_weights, d_bias = tape.gradient(loss, [self.weights, self.bias])
             self.weights.assign_sub(self.lr * d_weights)
             self.bias.assign_sub(self.lr * d_bias)
 
-            # Prints loss, weights and bias.
             if self.verbose and epoch % (self.iterations // 10) == 0:
                 print(
-                    f"Epoch: {epoch}\nLoss: {loss.numpy().flatten()}\nWeights: {self.weights.numpy().flatten()}\nBias: {self.bias.numpy().flatten()}\n")
+                    f"Epoch: {epoch}, Loss: {loss.numpy().flatten()}, Weights: {self.weights.numpy().flatten()}, Bias: {self.bias.numpy()}")
 
-        # Prints the final weights and bias.
         if self.verbose:
-            print(f"Final Weights: {self.weights.numpy().flatten()}\nFinal Bias: {self.bias.numpy().flatten()} ")
+            print(f"Final Weights: {self.weights.numpy().flatten()}, Final Bias: {self.bias.numpy()}")
