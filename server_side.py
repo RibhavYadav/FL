@@ -23,6 +23,9 @@ class Server:
         for client in self.connected_clients:
             client.receive_update(self.weights, self.bias)
 
+    def get_loss(self, y_true, x_test):
+        return self.model.compute_loss(y_true, self.model.predict(x_test))
+
     def aggregate(self):
         # Accumulators for weights and bias
         total_w = tf.Variable(tf.zeros_like(self.weights), dtype=tf.float32)
