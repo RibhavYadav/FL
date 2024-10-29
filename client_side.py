@@ -6,18 +6,18 @@ import tensorflow as tf
 class Client:
     def __init__(self, model: Type[Model], weights=None, bias=None, batch_size=64):
         # Initialize the client with the model, weights, and bias from the global model.
-        self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
-        self.bias = tf.Variable(bias, dtype=tf.float32) if bias is not None else None
+        self.weights = tf.Variable(weights, dtype=tf.float32)
+        self.bias = tf.Variable(bias, dtype=tf.float32)
         self.model = model(weights=self.weights, bias=self.bias)
         self.batch_size = batch_size
         self.batches_done = 0
 
     def receive_update(self, weights, bias):
         # Update the weights and bias of the local model
-        self.weights.assign(weights)  # Correctly assign the new weights
-        self.bias.assign(bias)        # Correctly assign the new bias
-        self.model.weights = self.weights  # Update the model's weights
-        self.model.bias = self.bias        # Update the model's bias
+        self.weights.assign(weights)
+        self.bias.assign(bias)
+        self.model.weights.assign(self.weights)
+        self.model.bias.assign(self.bias)
 
     def train_local(self, x_train, y_train):
         # Train the local model on a batch of data

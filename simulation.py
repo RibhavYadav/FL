@@ -22,7 +22,11 @@ x_train, x_test = tf.convert_to_tensor(x[:split], dtype=tf.float32), tf.convert_
 y_train, y_test = tf.convert_to_tensor(y[:split], dtype=tf.float32), tf.convert_to_tensor(y[split:], dtype=tf.float32)
 
 initial_weights = tf.Variable(tf.random.normal((col, 1), stddev=0.01))
-LR = UnoptimisedSGD(initial_weights, 0, verbose=False)
-LR.fit(x_train, y_train)
-y_pred = LR.predict(x_test)
-print("Loss: ", LR.compute_loss(y_test, y_pred))
+initial_bias = 0
+print("Initial: ", initial_weights.numpy().flatten(), initial_bias)
+server = Server(LinearRegression, x_train, y_train, weights=initial_weights, bias=initial_bias)
+print(server.model.compute_loss(y_test, server.model.predict(x_test)))
+
+for i in range(3):
+    server.aggregate()
+    print(server.model.compute_loss(y_test, server.model.predict(x_test)))
