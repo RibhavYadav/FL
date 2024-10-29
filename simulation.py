@@ -24,9 +24,22 @@ y_train, y_test = tf.convert_to_tensor(y[:split], dtype=tf.float32), tf.convert_
 initial_weights = tf.Variable(tf.random.normal((col, 1), stddev=0.01))
 initial_bias = 0
 print("Initial: ", initial_weights.numpy().flatten(), initial_bias)
-server = Server(LinearRegression, x_train, y_train, weights=initial_weights, bias=initial_bias)
-print(server.model.compute_loss(y_test, server.model.predict(x_test)))
 
-for i in range(3):
-    server.aggregate()
-    print(server.model.compute_loss(y_test, server.model.predict(x_test)))
+linear_server = Server(LinearRegression, x_train, y_train, weights=initial_weights, bias=initial_bias)
+usgd_server = Server(UnoptimisedSGD, x_train, y_train, weights=initial_weights, bias=initial_bias)
+osgd_server = Server(OptimisedSGD, x_train, y_train, weights=initial_weights, bias=initial_bias, clients=1)
+
+linear_loss = [linear_server.get_loss(y_test, x_test).numpy()]
+usgd_loss = [usgd_server.get_loss(y_test, x_test).numpy()]
+osgd_loss = [osgd_server.get_loss(y_test, x_test).numpy()]
+
+for i in range(5):
+    print(f"Epoch: {i}")
+    linear_server.aggregate(), usgd_server.aggregate(), osgd_server.aggregate()
+    linear_loss.append(linear_server.get_loss(y_test, x_test).numpy())
+    usgd_loss.append(usgd_server.get_loss(y_test, x_test).numpy())
+    osgd_loss.append(osgd_server.get_loss(y_test, x_test).numpy())
+
+print(linear_loss)
+print(usgd_loss)
+print(osgd_loss)
