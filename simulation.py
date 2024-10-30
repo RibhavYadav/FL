@@ -5,7 +5,7 @@ from server_side import Server
 from models.LinearRegression import LinearRegression
 from models.OptimisedSGD import OptimisedSGD
 from models.UnoptimisedSGD import UnoptimisedSGD
-import seaborn as sns, matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 data = pd.read_csv("wine+quality/winequality-red.csv", delimiter=';')
 x = data.iloc[:, :-1].values
@@ -34,8 +34,9 @@ linear_loss = [linear_server.get_loss(y_test, x_test).numpy()]
 usgd_loss = [usgd_server.get_loss(y_test, x_test).numpy()]
 osgd_loss = [osgd_server.get_loss(y_test, x_test).numpy()]
 
-for i in range(10):
-    print(f"Epoch: {i}")
+epochs = 2
+for i in range(epochs):
+    print(f"Epoch: {i + 1}")
     linear_server.aggregate(), usgd_server.aggregate(), osgd_server.aggregate()
     linear_loss.append(linear_server.get_loss(y_test, x_test).numpy())
     usgd_loss.append(usgd_server.get_loss(y_test, x_test).numpy())
@@ -45,12 +46,14 @@ print(linear_loss)
 print(usgd_loss)
 print(osgd_loss)
 
+loss = [linear_loss, usgd_loss, osgd_loss]
 titles = ["Linear Regression", "UnoptimisedSDG", "OptimisedSDG"]
 plt.figure(figsize=(10, 10))
 for i in range(3):
-    plt.subplot(3, 3, i + 1)
-    plt.plot(range(1, 11), linear_loss[i], cmap="yellow")
+    plt.plot(range(1, len(loss[i]) + 1), loss[i], marker="o")
     plt.title(titles[i])
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
+plt.legend()
 plt.show()
+
