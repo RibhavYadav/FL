@@ -8,6 +8,9 @@ class LinearRegression(Model):
         # Initialize the parent class with all shared parameters
         super().__init__(weights, bias, learning_rate, iterations, verbose)
 
+    def predict(self, x):
+        return tf.matmul(x, self.weights) + self.bias
+
     def fit(self, x_train, y_train):
         x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
         y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
@@ -29,6 +32,9 @@ class OptimisedSGD(Model):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
         # Initialize the base Model class
         super().__init__(weights, bias, learning_rate, iterations, verbose)
+
+    def predict(self, x):
+        return tf.matmul(x, self.weights) + self.bias
 
     def fit(self, x_batch, y_batch):
         # Ensure that x_batch and y_batch are tensors
@@ -56,6 +62,9 @@ class UnoptimisedSGD(Model):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
         # Initialize the base Model class
         super().__init__(weights, bias, learning_rate, iterations, verbose)
+
+    def predict(self, x):
+        return tf.matmul(x, self.weights) + self.bias
 
     def fit(self, x_train, y_train):
         # Converts given data to TensorFlow tensors.
