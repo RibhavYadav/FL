@@ -8,9 +8,6 @@ class LinearRegression(Model):
         # Initialize the parent class with all shared parameters
         super().__init__(**kwargs)
 
-    def predict(self, x):
-        return tf.matmul(x, self.weights) + self.bias
-
     def compute_loss(self, y_true, y_pred):
         return tf.reduce_mean(tf.square(y_true - y_pred))
 
@@ -41,9 +38,6 @@ class OptimisedSGD(Model):
         # Initialize the base Model class
         super().__init__(weights, bias, learning_rate, iterations, verbose)
 
-    def predict(self, x):
-        return tf.matmul(x, self.weights) + self.bias
-
     def compute_loss(self, y_true, y_pred):
         return tf.reduce_mean(tf.square(y_true - y_pred))
 
@@ -73,9 +67,6 @@ class UnoptimisedSGD(Model):
     def __init__(self, **kwargs):
         # Initialize the parent class with all shared parameters
         super().__init__(**kwargs)
-
-    def predict(self, x):
-        return tf.matmul(x, self.weights) + self.bias
 
     def compute_loss(self, y_true, y_pred):
         return tf.reduce_mean(tf.square(y_true - y_pred))

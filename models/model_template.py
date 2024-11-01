@@ -15,7 +15,7 @@ class Model:
 
     def predict(self, x):
         """Predicts output from current weights and bias"""
-        pass
+        return tf.matmul(x, self.weights) + self.bias
 
     def fit(self, x_train, y_train):
         """Fits the model to the training data"""
