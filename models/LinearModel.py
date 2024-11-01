@@ -4,12 +4,9 @@ from models.model_template import Model
 
 
 class LinearRegression(Model):
-    def __init__(self, **kwargs):
+    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
         # Initialize the parent class with all shared parameters
-        super().__init__(**kwargs)
-
-    def compute_loss(self, y_true, y_pred):
-        return tf.reduce_mean(tf.square(y_true - y_pred))
+        super().__init__(weights, bias, learning_rate, iterations, verbose)
 
     def fit(self, x_train, y_train):
         x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
@@ -24,11 +21,6 @@ class LinearRegression(Model):
             self.weights.assign_sub(self.lr * d_weights)
             self.bias.assign_sub(self.lr * d_bias)
 
-            # Verbose output for tracking progress
-            if self.verbose and epoch % (self.iterations // 10) == 0:
-                print(
-                    f"Epoch: {epoch}, Loss: {loss.numpy().flatten()}, Weights: {self.weights.numpy().flatten()}, Bias: {self.bias.numpy()}")
-
         if self.verbose:
             print(f"Final Weights: {self.weights.numpy().flatten()}, Final Bias: {self.bias.numpy()}")
 
@@ -37,9 +29,6 @@ class OptimisedSGD(Model):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
         # Initialize the base Model class
         super().__init__(weights, bias, learning_rate, iterations, verbose)
-
-    def compute_loss(self, y_true, y_pred):
-        return tf.reduce_mean(tf.square(y_true - y_pred))
 
     def fit(self, x_batch, y_batch):
         # Ensure that x_batch and y_batch are tensors
@@ -64,12 +53,9 @@ class OptimisedSGD(Model):
 
 
 class UnoptimisedSGD(Model):
-    def __init__(self, **kwargs):
-        # Initialize the parent class with all shared parameters
-        super().__init__(**kwargs)
-
-    def compute_loss(self, y_true, y_pred):
-        return tf.reduce_mean(tf.square(y_true - y_pred))
+    def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
+        # Initialize the base Model class
+        super().__init__(weights, bias, learning_rate, iterations, verbose)
 
     def fit(self, x_train, y_train):
         # Converts given data to TensorFlow tensors.
