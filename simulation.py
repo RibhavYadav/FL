@@ -1,11 +1,11 @@
-import tensorflow as tf
-import pandas as pd
-from server_side import Server
-from models.LinearModel.LinearRegression import LinearRegression
-from models.LinearModel.OptimisedSGD import OptimisedSGD
-from models.LinearModel.UnoptimisedSGD import UnoptimisedSGD
 import matplotlib.pyplot as plt
+import pandas as pd
+import tensorflow as tf
 
+from models.LinearModel import LinearRegression, UnoptimisedSGD, OptimisedSGD
+from server_side import Server
+
+# Load Data
 data = pd.read_csv("wine+quality/winequality-red.csv", delimiter=';')
 x = data.iloc[:, :-1].values
 y = data.iloc[:, -1].values
@@ -25,9 +25,9 @@ initial_weights = tf.Variable(tf.random.normal((col, 1), stddev=0.01))
 initial_bias = 0
 print("Initial: ", initial_weights.numpy().flatten(), initial_bias)
 
-linear_server = Server(LinearRegression, x_train, y_train, weights=initial_weights, bias=initial_bias)
-usgd_server = Server(UnoptimisedSGD, x_train, y_train, weights=initial_weights, bias=initial_bias)
-osgd_server = Server(OptimisedSGD, x_train, y_train, weights=initial_weights, bias=initial_bias, clients=1)
+linear_server = Server(LinearRegression, x_train, y_train, initial_weights, initial_bias)
+usgd_server = Server(UnoptimisedSGD, x_train, y_train, initial_weights, initial_bias)
+osgd_server = Server(OptimisedSGD, x_train, y_train, initial_weights, initial_bias)
 
 linear_loss = [linear_server.get_loss(y_test, x_test).numpy()]
 usgd_loss = [usgd_server.get_loss(y_test, x_test).numpy()]
