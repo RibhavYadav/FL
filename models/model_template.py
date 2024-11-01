@@ -1,9 +1,11 @@
+from abc import ABC, abstractmethod
+
 import tensorflow as tf
 
 """Base model template"""
 
 
-class Model:
+class Model(ABC):
     def __init__(self, weights=None, bias=None, learning_rate=0.01, iterations=200, verbose=False):
         """Initialises the model"""
         self.weights = tf.Variable(weights, dtype=tf.float32) if weights is not None else None
@@ -17,10 +19,12 @@ class Model:
         """Computes mean squared error"""
         return tf.reduce_mean(tf.square(y_true - y_pred))
 
+    @abstractmethod
     def predict(self, x):
         """Predicts output from current weights and bias"""
-        return tf.matmul(x, self.weights) + self.bias
+        pass
 
+    @abstractmethod
     def fit(self, x_train, y_train):
         """Fits the model to the training data"""
         pass
