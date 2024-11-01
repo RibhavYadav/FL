@@ -1,10 +1,9 @@
 import tensorflow as tf
 import pandas as pd
-from client_side import Client
 from server_side import Server
-from models.LinearRegression import LinearRegression
-from models.OptimisedSGD import OptimisedSGD
-from models.UnoptimisedSGD import UnoptimisedSGD
+from models.LinearModel.LinearRegression import LinearRegression
+from models.LinearModel.OptimisedSGD import OptimisedSGD
+from models.LinearModel.UnoptimisedSGD import UnoptimisedSGD
 import matplotlib.pyplot as plt
 
 data = pd.read_csv("wine+quality/winequality-red.csv", delimiter=';')
@@ -56,4 +55,3 @@ for i in range(3):
     plt.ylabel("Loss")
 plt.legend()
 plt.show()
-
